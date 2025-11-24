@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mochtari</title>
+
+<style>
+  body {
+    margin:0;
+    padding:0;
+    background:#0d0d0d;
+    font-family:"Arial",sans-serif;
+    color:white;
+  }
+
+  header {
+    background:#111;
+    padding:22px;
+    text-align:center;
+    border-bottom:4px solid #1e90ff;
+    box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  header h1 {
+    margin:0;
+    font-size:28px;
+    color:#fff;
+    letter-spacing:1px;
+  }
+
+  .container {
+    max-width:1100px;
+    margin:auto;
+    padding:20px;
+  }
+
+  .topBar {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+  }
+
+  .topBar h2 {
+    margin:0;
+    font-size:24px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#1e90ff;
+  }
+
+  .topBar .buttons {
+    display:flex;
+    gap:10px;
+  }
+
+  .topBar button {
+    background:#ff7a00;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    font-size:16px;
+    transition:0.2s;
+  }
+
+  .topBar button:hover {
+    background:#ff8f22;
+    transform:scale(1.05);
+  }
+
+  .productCard {
+    background:#161616;
+    border-radius:12px;
+    padding:15px;
+    margin-top:20px;
+    box-shadow:0 0 12px rgba(0,0,0,0.4);
+  }
+
+  .productCard span {
+    display:block;
+    margin-bottom:8px;
+    font-size:18px;
+  }
+
+  .productCard button {
+    background:#1e90ff;
+    border:none;
+    padding:10px 0;
+    border-radius:8px;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    width:100%;
+    font-size:17px;
+    transition:0.2s;
+  }
+
+  .productCard button:hover {
+    background:#3aa0ff;
+  }
+
+  .cartTitle {
+    margin-top:30px;
+    font-size:22px;
+    color:#1e90ff;
+  }
+
+  .cart {
+    background:#161616;
+    padding:20px;
+    border-radius:12px;
+    margin-top:10px;
+    box-shadow:0 0 12px rgba(0,0,0,0.5);
+  }
+
+  .cart ul {
+    list-style:none;
+    padding:0;
+    margin:10px 0;
+  }
+
+  .cart ul li {
+    padding:10px 0;
+    border-bottom:1px solid #333;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+
+  .cart ul li button {
+    background:#ff4c4c;
+    border:none;
+    padding:4px 10px;
+    border-radius:5px;
+    color:white;
+    cursor:pointer;
+    transition:0.2s;
+  }
+
+  .cart ul li button:hover {
+    background:#ff1a1a;
+  }
+
+  .cart button {
+    background:#ff7a00;
+    border:none;
+    padding:12px 20px;
+    border-radius:10px;
+    color:white;
+    font-size:16px;
+    margin-top:10px;
+    cursor:pointer;
+    transition:0.2s;
+  }
+
+  .cart button:hover {
+    background:#ff8f22;
+  }
+</style>
+
+</head>
+<body>
+
+<header>
+  <h1>Mochtari - متجر الألعاب</h1>
+</header>
+
+<div class="container">
+
+  <div class="topBar">
+    <h2>📦 المنتجات (<span id="productCount">1</span>)</h2>
+    <div class="buttons">
+      <button onclick="goCharge()">⚡ شحن</button>
+      <button onclick="addYourProduct()">➕ أضف منتجك</button>
+    </div>
+  </div>
+
+  <!-- منتج جاهز -->
+  <div class="productCard">
+    <span>حساب روبلوكس: <strong>mohammed_amine95</strong></span>
+    <span>السعر: <strong>100 MAD</strong></span>
+    <button onclick="addToCart('mohammed_amine95',100)">أضف للسلة</button>
+  </div>
+
+  <h3 class="cartTitle">🛒 السلة</h3>
+  <div class="cart">
+    <ul id="cartItems"></ul>
+    <p>المجموع: <span id="total">0</span> MAD</p>
+    <button onclick="sendOrder()">📩 إرسال الطلب</button>
+  </div>
+
+</div>
+
+<script>
+  let cart = [];
+  let total = 0;
+
+  function goCharge() {
+    window.open("https://wa.me/212704973576?text=أريد شحن حسابي", "_blank");
+  }
+
+  function addYourProduct() {
+    const msg = "مرحباً، أريد إضافة منتجي الخاص إلى المتجر";
+    window.open(`https://wa.me/212704973576?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  function addToCart(name, price) {
+    // تحقق إذا المنتج موجود بالفعل
+    if(cart.find(item => item.name === name)){
+      alert("المنتج موجود بالفعل في السلة!");
+      return;
+    }
+    cart.push({name, price});
+    updateCart();
+  }
+
+  function updateCart() {
+    const list = document.getElementById('cartItems');
+    list.innerHTML = '';
+    total = 0;
+    cart.forEach((item, index)=>{
+      const li = document.createElement('li');
+      li.textContent = `${item.name} - ${item.price} MAD`;
+
+      // زر الحذف
+      const delBtn = document.createElement('button');
+      delBtn.textContent = "حذف";
+      delBtn.onclick = ()=> removeFromCart(index);
+
+      li.appendChild(delBtn);
+      list.appendChild(li);
+      total += item.price;
+    });
+    document.getElementById('total').textContent = total;
+  }
+
+  function removeFromCart(index) {
+    cart.splice(index,1);
+    updateCart();
+  }
+
+  function sendOrder() {
+    if(cart.length===0){
+      alert("السلة فارغة!");
+      return;
+    }
+    let msg = "مرحباً، أريد شراء:\n";
+    cart.forEach(i=> msg+= `- ${i.name} (${i.price} MAD)\n`);
+    msg += `\nالمجموع: ${total} MAD`;
+    window.open(`https://wa.me/212704973576?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+</script>
+
+</body>
+</html>
