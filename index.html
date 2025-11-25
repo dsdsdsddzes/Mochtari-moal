@@ -36,6 +36,14 @@
     color:#1e90ff;
   }
 
+  /* عداد التحديث الجديد */
+  #countdown {
+    margin-top:5px;
+    font-size:16px;
+    color:#ffb347;
+    font-weight:bold;
+  }
+
   .container {
     max-width:1100px;
     margin:auto;
@@ -63,21 +71,27 @@
     gap:10px;
   }
 
-  .topBar button {
-    background:#ff7a00;
+  .topBar button, .productCard button {
+    background: linear-gradient(135deg, #ff7a00, #ffb347);
     color:white;
     border:none;
-    padding:10px 18px;
-    border-radius:10px;
+    padding:12px 20px;
+    border-radius:12px;
     font-weight:bold;
-    cursor:pointer;
     font-size:16px;
-    transition:0.2s;
+    cursor:pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
 
-  .topBar button:hover {
-    background:#ff8f22;
-    transform:scale(1.05);
+  .topBar button:hover, .productCard button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.4);
+    background: linear-gradient(135deg, #ff8f22, #ffc37f);
   }
 
   .productCard {
@@ -95,20 +109,9 @@
   }
 
   .productCard button {
-    background:#1e90ff;
-    border:none;
-    padding:10px 0;
-    border-radius:8px;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
-    width:100%;
+    width: 100%;
+    margin-top:10px;
     font-size:17px;
-    transition:0.2s;
-  }
-
-  .productCard button:hover {
-    background:#3aa0ff;
   }
 
   .cartTitle {
@@ -169,7 +172,6 @@
     background:#ff8f22;
   }
 
-  /* شريط التنقل السفلي */
   .bottom-nav {
     position: fixed;
     bottom: 0;
@@ -213,7 +215,6 @@
     position: relative;
   }
 
-  /* نافذة الحساب الجانبية */
   #accountSidebar {
     position: fixed;
     top: 0;
@@ -241,7 +242,6 @@
     display: none;
   }
 
-  /* نافذة تسجيل المستخدم */
   #registerModal {
     position: fixed;
     top:0;
@@ -295,10 +295,10 @@
 <header>
   <h1>Mochtari - متجر الألعاب</h1>
   <p id="userName"></p>
+  <p id="countdown"></p>
 </header>
 
 <div class="container">
-
   <div class="topBar">
     <h2>📦 المنتجات (<span id="productCount">1</span>)</h2>
     <div class="buttons">
@@ -310,7 +310,7 @@
   <div class="productCard">
     <span>حساب روبلوكس: <strong>mohammed_amine95</strong></span>
     <span>السعر: <strong>100 MAD</strong></span>
-    <button onclick="addToCart('mohammed_amine95',100)">أضف للسلة</button>
+    <button onclick="addToCart('mohammed_amine95',100)">🛒 أضف للسلة</button>
   </div>
 
   <h3 class="cartTitle">🛒 السلة</h3>
@@ -319,10 +319,8 @@
     <p>المجموع: <span id="total">0</span> MAD</p>
     <button onclick="sendOrder()">📩 إرسال الطلب</button>
   </div>
-
 </div>
 
-<!-- شريط التنقل السفلي -->
 <div class="bottom-nav">
   <a href="#" class="nav-item">
     <img src="https://img.icons8.com/ios/50/shop.png"/>
@@ -347,18 +345,17 @@
   </a>
 </div>
 
-<!-- نافذة الحساب الجانبية -->
 <div id="accountSidebar">
   <h2>👤 حسابي</h2>
   <p id="sidebarName"></p>
   <p>العمر: <span id="sidebarAge"></span></p>
   <p>الجنسية: <span id="sidebarNationality"></span></p>
+  <button onclick="logout()">تسجيل الخروج</button>
   <button onclick="closeSidebar()">إغلاق</button>
 </div>
 
 <div id="sidebarOverlay"></div>
 
-<!-- نافذة تسجيل المستخدم -->
 <div id="registerModal">
   <div class="modalContent">
     <h2>تسجيل المستخدم</h2>
@@ -378,46 +375,40 @@
 </div>
 
 <script>
-  // بيانات المستخدم
-  let user = {};
+  // -----------------------------
+  // عداد التحديث الموحد يبدأ من الآن
+  // -----------------------------
+  let endTime = new Date();
+  endTime.setDate(endTime.getDate() + 40); // 40 يوم
+  endTime.setHours(endTime.getHours() + 60); // 60 ساعة = 2 يوم + 12 ساعة
+  endTime.setMinutes(endTime.getMinutes() + 52);
+  endTime.setSeconds(endTime.getSeconds() + 55);
 
-  // إرسال نموذج التسجيل
-  function submitRegister(){
-    const name = document.getElementById('regName').value.trim();
-    const age = document.getElementById('regAge').value.trim();
-    const nationality = document.getElementById('regNationality').value;
+  function updateCountdown() {
+    let now = new Date();
+    let diff = endTime - now;
 
-    if(!name || !age || !nationality){
-      alert("يرجى تعبئة جميع الحقول!");
+    if(diff <= 0){
+      document.getElementById('countdown').textContent = "✅ التحديث الجديد متاح الآن!";
+      clearInterval(timer);
       return;
     }
 
-    user.name = name;
-    user.age = age;
-    user.nationality = nationality;
+    let days = Math.floor(diff / (1000*60*60*24));
+    let hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    let minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
+    let seconds = Math.floor((diff % (1000*60)) / 1000);
 
-    // تحديث الاسم أعلى الصفحة
-    document.getElementById('userName').textContent = `مرحباً، ${user.name}`;
-
-    // تحديث نافذة الحساب
-    document.getElementById('sidebarName').textContent = `الاسم: ${user.name}`;
-    document.getElementById('sidebarAge').textContent = user.age;
-    document.getElementById('sidebarNationality').textContent = user.nationality;
-
-    // إخفاء نافذة التسجيل
-    document.getElementById('registerModal').style.display = 'none';
+    document.getElementById('countdown').textContent =
+      `🕒 التحديث الجديد خلال: ${days} أيام : ${hours} ساعات : ${minutes} دقائق : ${seconds} ثواني`;
   }
 
-  // وظائف المتجر
-  function goCharge() {
-    window.open("https://wa.me/212704973576?text=أريد شحن حسابي", "_blank");
-  }
+  let timer = setInterval(updateCountdown, 1000);
+  updateCountdown();
 
-  function addYourProduct() {
-    const msg = "مرحباً، أريد إضافة منتجي الخاص إلى المتجر";
-    window.open(`https://wa.me/212704973576?text=${encodeURIComponent(msg)}`, '_blank');
-  }
-
+  // -----------------------------
+  // باقي كود السلة والحساب وتسجيل المستخدم
+  // -----------------------------
   let cart = [];
   let total = 0;
 
@@ -437,11 +428,9 @@
     cart.forEach((item, index)=>{
       const li = document.createElement('li');
       li.textContent = `${item.name} - ${item.price} MAD`;
-
       const delBtn = document.createElement('button');
       delBtn.textContent = "حذف";
       delBtn.onclick = ()=> removeFromCart(index);
-
       li.appendChild(delBtn);
       list.appendChild(li);
       total += item.price;
@@ -466,7 +455,15 @@
     window.open(`https://wa.me/212704973576?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
-  // فتح وغلق نافذة الحساب
+  function goCharge() {
+    window.open("https://wa.me/212704973576?text=أريد شحن حسابي", "_blank");
+  }
+
+  function addYourProduct() {
+    const msg = "مرحباً، أريد إضافة منتجي الخاص إلى المتجر";
+    window.open(`https://wa.me/212704973576?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
   function openSidebar(){
     document.getElementById('accountSidebar').style.right = '0';
     document.getElementById('sidebarOverlay').style.display = 'block';
@@ -477,7 +474,6 @@
     document.getElementById('sidebarOverlay').style.display = 'none';
   }
 
-  // أزرار الشريط السفلي
   document.querySelectorAll('.bottom-nav a').forEach(link=>{
     link.addEventListener('click', function(e){
       e.preventDefault();
@@ -493,6 +489,47 @@
       }
     });
   });
+
+  function submitRegister(){
+    const name = document.getElementById('regName').value.trim();
+    const age = document.getElementById('regAge').value.trim();
+    const nationality = document.getElementById('regNationality').value;
+
+    if(!name || !age || !nationality){
+      alert("يرجى تعبئة جميع الحقول!");
+      return;
+    }
+
+    localStorage.setItem('user_name', name);
+    localStorage.setItem('user_age', age);
+    localStorage.setItem('user_nationality', nationality);
+
+    updateUserUI();
+  }
+
+  function updateUserUI(){
+    const name = localStorage.getItem('user_name');
+    const age = localStorage.getItem('user_age');
+    const nationality = localStorage.getItem('user_nationality');
+
+    if(name && age && nationality){
+      document.getElementById('userName').textContent = `مرحباً، ${name}`;
+      document.getElementById('sidebarName').textContent = `الاسم: ${name}`;
+      document.getElementById('sidebarAge').textContent = age;
+      document.getElementById('sidebarNationality').textContent = nationality;
+
+      document.getElementById('registerModal').style.display = 'none';
+    }
+  }
+
+  function logout(){
+    localStorage.clear();
+    location.reload();
+  }
+
+  window.onload = function(){
+    updateUserUI();
+  };
 </script>
 
 </body>
