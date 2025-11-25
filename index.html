@@ -12,6 +12,7 @@
     background:#0d0d0d;
     font-family:"Arial",sans-serif;
     color:white;
+    padding-bottom:80px;
   }
 
   header {
@@ -27,6 +28,12 @@
     font-size:28px;
     color:#fff;
     letter-spacing:1px;
+  }
+
+  #userName {
+    margin-top:8px;
+    font-size:16px;
+    color:#1e90ff;
   }
 
   .container {
@@ -161,13 +168,133 @@
   .cart button:hover {
     background:#ff8f22;
   }
-</style>
 
+  /* شريط التنقل السفلي */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-top: 1px solid #ddd;
+    z-index: 999;
+  }
+
+  .bottom-nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .bottom-nav img {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+  }
+
+  .badge {
+    background: #ff0066;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 10px;
+    position: absolute;
+    margin-top: -5px;
+    margin-left: 12px;
+  }
+
+  .nav-item {
+    position: relative;
+  }
+
+  /* نافذة الحساب الجانبية */
+  #accountSidebar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: 100%;
+    background: #161616;
+    color: white;
+    box-shadow: -4px 0 12px rgba(0,0,0,0.5);
+    padding: 20px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  #sidebarOverlay {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    display: none;
+  }
+
+  /* نافذة تسجيل المستخدم */
+  #registerModal {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+
+  #registerModal .modalContent {
+    background:#222;
+    padding:30px;
+    border-radius:15px;
+    max-width:400px;
+    width:90%;
+    text-align:center;
+    color:white;
+  }
+
+  #registerModal input, #registerModal select {
+    width: 90%;
+    padding:10px;
+    margin:10px 0;
+    border-radius:8px;
+    border:none;
+    font-size:16px;
+  }
+
+  #registerModal button {
+    background:#1e90ff;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin-top:10px;
+  }
+
+  #registerModal button:hover {
+    background:#3aa0ff;
+  }
+</style>
 </head>
 <body>
 
 <header>
   <h1>Mochtari - متجر الألعاب</h1>
+  <p id="userName"></p>
 </header>
 
 <div class="container">
@@ -180,7 +307,6 @@
     </div>
   </div>
 
-  <!-- منتج جاهز -->
   <div class="productCard">
     <span>حساب روبلوكس: <strong>mohammed_amine95</strong></span>
     <span>السعر: <strong>100 MAD</strong></span>
@@ -196,10 +322,93 @@
 
 </div>
 
-<script>
-  let cart = [];
-  let total = 0;
+<!-- شريط التنقل السفلي -->
+<div class="bottom-nav">
+  <a href="#" class="nav-item">
+    <img src="https://img.icons8.com/ios/50/shop.png"/>
+    Shop
+  </a>
 
+  <a href="#" class="nav-item">
+    <img src="https://img.icons8.com/ios/50/like.png"/>
+    Wishlist
+    <span class="badge" id="wishCount">0</span>
+  </a>
+
+  <a href="#" class="nav-item">
+    <img src="https://img.icons8.com/ios/50/shopping-cart.png"/>
+    Cart
+    <span class="badge" id="cartCount">0</span>
+  </a>
+
+  <a href="#" class="nav-item">
+    <img src="https://img.icons8.com/ios/50/user.png"/>
+    My account
+  </a>
+</div>
+
+<!-- نافذة الحساب الجانبية -->
+<div id="accountSidebar">
+  <h2>👤 حسابي</h2>
+  <p id="sidebarName"></p>
+  <p>العمر: <span id="sidebarAge"></span></p>
+  <p>الجنسية: <span id="sidebarNationality"></span></p>
+  <button onclick="closeSidebar()">إغلاق</button>
+</div>
+
+<div id="sidebarOverlay"></div>
+
+<!-- نافذة تسجيل المستخدم -->
+<div id="registerModal">
+  <div class="modalContent">
+    <h2>تسجيل المستخدم</h2>
+    <input type="text" id="regName" placeholder="الاسم الكامل" required>
+    <input type="number" id="regAge" placeholder="العمر" required>
+    <select id="regNationality">
+      <option value="">الجنسية</option>
+      <option value="مغربي">مغربي</option>
+      <option value="جزائري">جزائري</option>
+      <option value="تونس">تونسي</option>
+      <option value="سوري">سوري</option>
+      <option value="مصري">مصري</option>
+      <option value="أخرى">أخرى</option>
+    </select>
+    <button onclick="submitRegister()">تسجيل</button>
+  </div>
+</div>
+
+<script>
+  // بيانات المستخدم
+  let user = {};
+
+  // إرسال نموذج التسجيل
+  function submitRegister(){
+    const name = document.getElementById('regName').value.trim();
+    const age = document.getElementById('regAge').value.trim();
+    const nationality = document.getElementById('regNationality').value;
+
+    if(!name || !age || !nationality){
+      alert("يرجى تعبئة جميع الحقول!");
+      return;
+    }
+
+    user.name = name;
+    user.age = age;
+    user.nationality = nationality;
+
+    // تحديث الاسم أعلى الصفحة
+    document.getElementById('userName').textContent = `مرحباً، ${user.name}`;
+
+    // تحديث نافذة الحساب
+    document.getElementById('sidebarName').textContent = `الاسم: ${user.name}`;
+    document.getElementById('sidebarAge').textContent = user.age;
+    document.getElementById('sidebarNationality').textContent = user.nationality;
+
+    // إخفاء نافذة التسجيل
+    document.getElementById('registerModal').style.display = 'none';
+  }
+
+  // وظائف المتجر
   function goCharge() {
     window.open("https://wa.me/212704973576?text=أريد شحن حسابي", "_blank");
   }
@@ -209,8 +418,10 @@
     window.open(`https://wa.me/212704973576?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
+  let cart = [];
+  let total = 0;
+
   function addToCart(name, price) {
-    // تحقق إذا المنتج موجود بالفعل
     if(cart.find(item => item.name === name)){
       alert("المنتج موجود بالفعل في السلة!");
       return;
@@ -227,7 +438,6 @@
       const li = document.createElement('li');
       li.textContent = `${item.name} - ${item.price} MAD`;
 
-      // زر الحذف
       const delBtn = document.createElement('button');
       delBtn.textContent = "حذف";
       delBtn.onclick = ()=> removeFromCart(index);
@@ -237,6 +447,7 @@
       total += item.price;
     });
     document.getElementById('total').textContent = total;
+    document.getElementById('cartCount').textContent = cart.length;
   }
 
   function removeFromCart(index) {
@@ -254,6 +465,34 @@
     msg += `\nالمجموع: ${total} MAD`;
     window.open(`https://wa.me/212704973576?text=${encodeURIComponent(msg)}`, '_blank');
   }
+
+  // فتح وغلق نافذة الحساب
+  function openSidebar(){
+    document.getElementById('accountSidebar').style.right = '0';
+    document.getElementById('sidebarOverlay').style.display = 'block';
+  }
+
+  function closeSidebar(){
+    document.getElementById('accountSidebar').style.right = '-100%';
+    document.getElementById('sidebarOverlay').style.display = 'none';
+  }
+
+  // أزرار الشريط السفلي
+  document.querySelectorAll('.bottom-nav a').forEach(link=>{
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      const text = this.textContent.trim().toLowerCase();
+      if(text.includes('cart')) {
+        window.scrollTo({ top: document.querySelector('.cart').offsetTop, behavior: 'smooth' });
+      } else if(text.includes('my account')) {
+        openSidebar();
+      } else if(text.includes('wishlist')) {
+        alert('قائمة المفضلة فارغة حالياً!');
+      } else if(text.includes('shop')) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  });
 </script>
 
 </body>
